@@ -22,7 +22,7 @@ void main() {
     "should call [AuthRepository.getUsers] and return [List<User>]",
     () async {
       when(() => repository.getUsers()).thenAnswer(
-        (_) async => Right(testResponse),
+        (_) async => const Right(testResponse),
       );
       final result = await usecase();
 

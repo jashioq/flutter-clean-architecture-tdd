@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tdd_tutorial/core/erros/exceptions.dart';
 import 'package:tdd_tutorial/core/erros/failures.dart';
 import 'package:tdd_tutorial/src/authentication/data/datasources/remote/datasource.dart';
+import 'package:tdd_tutorial/src/authentication/data/models/user_model.dart';
 import 'package:tdd_tutorial/src/authentication/data/repositories/authentication_repository_impl.dart';
+import 'package:tdd_tutorial/src/authentication/domain/entities/user.dart';
 
 class MockAuthenticationRemoteDatasource extends Mock
     implements AuthenticationRemoteDatasource {}
@@ -12,6 +16,11 @@ class MockAuthenticationRemoteDatasource extends Mock
 void main() {
   late AuthenticationRemoteDatasource remoteDatasource;
   late AuthenticationRepositoryImpl repositoryImpl;
+
+  const TestException = APIException(
+    message: 'Unknown Error Occurred',
+    statusCode: 500,
+  );
 
   setUp(
     () {
@@ -26,11 +35,6 @@ void main() {
       const createdAt = 'test.createdAt';
       const name = 'test.name';
       const avatar = 'test.avatar';
-
-      const TestException = APIException(
-        message: 'Unknown Error Occurred',
-        statusCode: 500,
-      );
 
       test(
         'should call [RemoteDatasource.createUser] and complete successfully '
@@ -55,7 +59,7 @@ void main() {
       );
 
       test(
-        'should return a [ServerFailure] when the call to the remote datasource is unsuccessful',
+        'should return a [APIFailure] when the call to the remote datasource is unsuccessful',
         () async {
           when(
             () => remoteDatasource.createUser(
@@ -75,10 +79,7 @@ void main() {
             result,
             equals(
               Left(
-                ApiFailure(
-                  message: TestException.message,
-                  statusCode: TestException.statusCode,
-                ),
+                APIFailure.fromException(TestException),
               ),
             ),
           );
@@ -90,6 +91,51 @@ void main() {
               avatar: avatar,
             ),
           ).called(1);
+
+          verifyNoMoreInteractions(remoteDatasource);
+        },
+      );
+    },
+  );
+
+  group(
+    'getUsers',
+    () {
+      test(
+        'should call [RemoteDatasource.getUsers], complete successfully '
+        'when the call to the remote datasource is successful and return [List<User>]',
+        () async {
+          when(() => remoteDatasource.getUsers()).thenAnswer(
+            (_) async => [],
+          );
+
+          final result = await repositoryImpl.getUsers();
+
+          expect(result, isA<Right<dynamic, List<User>>>());
+
+          verify(() => remoteDatasource.getUsers()).called(1);
+
+          verifyNoMoreInteractions(remoteDatasource);
+        },
+      );
+
+      test(
+        'should return a [APIFailure] when the call to the remote datasource is unsuccessful',
+        () async {
+          when(() => remoteDatasource.getUsers()).thenThrow(TestException);
+
+          final result = await repositoryImpl.getUsers();
+
+          expect(
+            result,
+            equals(
+              Left(
+                APIFailure.fromException(TestException),
+              ),
+            ),
+          );
+
+          verify(() => remoteDatasource.getUsers()).called(1);
 
           verifyNoMoreInteractions(remoteDatasource);
         },
