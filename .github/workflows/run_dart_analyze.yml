@@ -1,4 +1,4 @@
-name: Flutter Test
+name: Dart analyze
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   test:
-    name: Run Flutter tests
+    name: Run Dart analyze
     runs-on: ubuntu-latest
 
     steps:
