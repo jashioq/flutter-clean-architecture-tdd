@@ -18,10 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Dart SDK
+        uses: dart/setup-dart@v1
+        with:
+          dart-version: '4.0.0'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '4.0.0'
+          flutter-version: '2.10.0'
           channel: 'stable'
 
       - name: Install dependencies
