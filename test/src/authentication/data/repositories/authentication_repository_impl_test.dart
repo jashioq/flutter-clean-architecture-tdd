@@ -1,12 +1,9 @@
-import 'dart:async';
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tdd_tutorial/core/erros/exceptions.dart';
 import 'package:tdd_tutorial/core/erros/failures.dart';
 import 'package:tdd_tutorial/src/authentication/data/datasources/remote/datasource.dart';
-import 'package:tdd_tutorial/src/authentication/data/models/user_model.dart';
 import 'package:tdd_tutorial/src/authentication/data/repositories/authentication_repository_impl.dart';
 import 'package:tdd_tutorial/src/authentication/domain/entities/user.dart';
 
@@ -17,7 +14,7 @@ void main() {
   late AuthenticationRemoteDatasource remoteDatasource;
   late AuthenticationRepositoryImpl repositoryImpl;
 
-  const TestException = APIException(
+  const testException = APIException(
     message: 'Unknown Error Occurred',
     statusCode: 500,
   );
@@ -67,7 +64,7 @@ void main() {
               name: any(named: 'name'),
               avatar: any(named: 'avatar'),
             ),
-          ).thenThrow(TestException);
+          ).thenThrow(testException);
 
           final result = await repositoryImpl.createUser(
             createdAt: createdAt,
@@ -79,7 +76,7 @@ void main() {
             result,
             equals(
               Left(
-                APIFailure.fromException(TestException),
+                APIFailure.fromException(testException),
               ),
             ),
           );
@@ -122,7 +119,7 @@ void main() {
       test(
         'should return a [APIFailure] when the call to the remote datasource is unsuccessful',
         () async {
-          when(() => remoteDatasource.getUsers()).thenThrow(TestException);
+          when(() => remoteDatasource.getUsers()).thenThrow(testException);
 
           final result = await repositoryImpl.getUsers();
 
@@ -130,7 +127,7 @@ void main() {
             result,
             equals(
               Left(
-                APIFailure.fromException(TestException),
+                APIFailure.fromException(testException),
               ),
             ),
           );
