@@ -26,9 +26,9 @@ void main() {
     'createUser',
     () {
       test(
-        'should complete succesfully when the status code is 200 or 201',
+        'should complete successfully when the status code is 200 or 201',
         () async {
-          when(() => client.post(any(), body: any(named: 'body'))).thenAnswer(
+          when(() => client.post(any(), headers: {'Content-type': 'application/json'}, body: any(named: 'body'))).thenAnswer(
             (_) async => http.Response('User created successfully', 201),
           );
 
@@ -45,6 +45,9 @@ void main() {
           verify(
             () => client.post(
               Uri.parse('$kBaseUrl$kCreateUserEndpoint'),
+              headers: {
+                'Content-type': 'application/json'
+              },
               body: jsonEncode(
                 {
                   'createdAt': 'createdAt',
@@ -58,10 +61,11 @@ void main() {
           verifyNoMoreInteractions(client);
         },
       );
+
       test(
         'should return [APIException] when the status code is not 200 or 201',
         () async {
-          when(() => client.post(any(), body: any(named: 'body'))).thenAnswer(
+          when(() => client.post(any(), headers: {'Content-type': 'application/json'}, body: any(named: 'body'))).thenAnswer(
             (_) async => http.Response('Invalid parameter: name', 400),
           );
 
@@ -82,6 +86,9 @@ void main() {
           verify(
             () => client.post(
               Uri.parse('$kBaseUrl$kCreateUserEndpoint'),
+              headers: {
+                'Content-type': 'application/json'
+              },
               body: jsonEncode(
                 {
                   'createdAt': 'createdAt',
